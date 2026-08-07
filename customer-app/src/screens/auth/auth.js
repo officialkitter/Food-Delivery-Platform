@@ -24,7 +24,6 @@ import {
   Keyboard
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../context/ThemeContext';
 import { CustomIcon } from '../../components/common/CustomIcon';
 
 const { width, height } = Dimensions.get('window');
@@ -52,9 +51,8 @@ const CAROUSEL_IMAGES = [
  * Part 2: Main Component Declaration and Visual Header Image Transitions
  */
 
-export default function AuthHubScreen({ onAuthSuccess, onExternalNavigation }) {
+export default function AuthHubScreen({ onAuthSuccess, onForgotPassword }) {
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
 
   // Navigation panel toggle state variables
   const [activeTab, setActiveTab] = useState('SIGN_IN'); // SIGN_IN or CREATE_ACCOUNT
@@ -117,7 +115,7 @@ export default function AuthHubScreen({ onAuthSuccess, onExternalNavigation }) {
  * Part 3: Form Step Pipeline Submission Event Handlers
  */
 
-  const executeSignInPipeline = () => {
+  const executeSignInPipeline = async () => {
     setErrorMessage('');
     if (!identifier.trim()) {
       setErrorMessage('Please fill in your email or phone number to continue.');
@@ -136,32 +134,54 @@ export default function AuthHubScreen({ onAuthSuccess, onExternalNavigation }) {
       setLoadingText('Signing you in...');
       
       // Pipeline connection point: Dispatch values to backend session registration service
-      if (onAuthSuccess) {
-        onAuthSuccess({ identifier, password, action: 'SIGN_IN' });
+      try {
+        if (onAuthSuccess) {
+          const result = await Promise.resolve(onAuthSuccess({ identifier, password, action: 'SIGN_IN' }));
+          if (result?.success === false) {
+            throw new Error(result.error || 'Sign in failed.');
+          }
+        }
+      } catch (error) {
+        setErrorMessage(error?.message || 'Sign in failed. Please verify your credentials.');
+      } finally {
+        setLoading(false);
       }
     }
   };
 
-  const executeRegistrationPipeline = () => {
+  const executeRegistrationPipeline = async () => {
     setErrorMessage('');
     if (currentStep === 'IDENTIFIER') {
       if (!fullName.trim() || !identifier.trim()) {
         setErrorMessage('Please complete all fields to set up your profile space.');
         return;
       }
-      // Step B: General parameters captured. Shift view context into verification validation mode.
+      // Step B: Basic profile parameters captured. Move to password setup step.
       setCurrentStep('VERIFICATION');
     } else if (currentStep === 'VERIFICATION') {
       if (!otpCode.trim()) {
-        setErrorMessage("Please supply the verification code sent to your account destination.");
+        setErrorMessage('Please choose a password for your new account.');
+        return;
+      }
+      if (otpCode.trim().length < 6) {
+        setErrorMessage('Password must be at least 6 characters.');
         return;
       }
       setLoading(true);
       setLoadingText('Creating your account...');
 
       // Pipeline connection point: Dispatch values to backend registration profile database service
-      if (onAuthSuccess) {
-        onAuthSuccess({ fullName, identifier, otpCode, action: 'CREATE_ACCOUNT' });
+      try {
+        if (onAuthSuccess) {
+          const result = await Promise.resolve(onAuthSuccess({ fullName, identifier, password: otpCode, action: 'CREATE_ACCOUNT' }));
+          if (result?.success === false) {
+            throw new Error(result.error || 'Registration failed.');
+          }
+        }
+      } catch (error) {
+        setErrorMessage(error?.message || 'Registration failed. Please try again.');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -275,9 +295,8 @@ export default function AuthHubScreen({ onAuthSuccess, onExternalNavigation }) {
               </TouchableOpacity>
             </View>
           )}
-/**
- * Part 4B: Layout Form Input Renderer Routing Tree Matrix (Registration and Account Recovery Views)
- */
+
+          {/* Part 4B: Registration and Account Recovery Views */}
 
           {/* Form Context Rendering Selection Router - Create Account Flows */}
           {activeTab === 'CREATE_ACCOUNT' && currentStep === 'IDENTIFIER' && (
@@ -300,11 +319,11 @@ export default function AuthHubScreen({ onAuthSuccess, onExternalNavigation }) {
 
           {currentStep === 'VERIFICATION' && (
             <View style={styles.formContainer}>
-              <Text style={styles.headingTitleText}>Security Verification</Text>
-              <Text style={styles.subtextSupportText}>A temporary entry configuration parameter code was dispatched to your destination device path.</Text>
+              <Text style={styles.headingTitleText}>Create your password</Text>
+              <Text style={styles.subtextSupportText}>Use at least 6 characters to secure your account credentials.</Text>
               <View style={[styles.inputGroupContainer, focusedField === 'otp' && styles.inputGroupContainerActive]}>
-                <Text style={styles.fieldInputLabel}>Verification Code</Text>
-                <TextInput style={styles.accessibleInputField} placeholder="Enter verification code" placeholderTextColor={AUTH_COLORS.textMuted} keyboardType="number-pad" value={otpCode} onChangeText={setOtpCode} onFocus={() => setFocusedField('otp')} onBlur={() => setFocusedField(null)} editable={!loading} />
+                <Text style={styles.fieldInputLabel}>Password</Text>
+                <TextInput style={styles.accessibleInputField} placeholder="Create password" placeholderTextColor={AUTH_COLORS.textMuted} secureTextEntry value={otpCode} onChangeText={setOtpCode} onFocus={() => setFocusedField('otp')} onBlur={() => setFocusedField(null)} editable={!loading} />
               </View>
               <TouchableOpacity style={[styles.primaryActionButtonFrame, loading && { opacity: 0.6 }]} activeOpacity={0.85} onPress={executeRegistrationPipeline} disabled={loading}>
                 {loading ? <View style={styles.btnLoadingRow}><ActivityIndicator color="#FFFFFF" size="small" /><Text style={styles.btnLoadingRowText}>{loadingText}</Text></View> : <Text style={styles.primaryActionText}>Continue</Text>}

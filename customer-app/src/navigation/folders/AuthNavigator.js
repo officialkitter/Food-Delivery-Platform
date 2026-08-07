@@ -6,6 +6,7 @@
 
 import React, { useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { authService } from '../../services/authService';
 
 // Import all 12 modules located within your local filesystem directory
 import SplashScreen from '../../screens/auth/splash';
@@ -63,12 +64,36 @@ export default function AuthNavigator({ onAppAuthenticationComplete }) {
 
       {currentScreen === 'AUTH_HUB' && (
         <AuthHubScreen 
-          onAuthSuccess={(payload) => {
-            setAuthPayload(payload);
-            if (payload.action === 'SIGN_IN' || payload.action === 'SOCIAL_AUTH') {
-              handleScreenChange('BIOMETRIC_SETUP');
-            } else if (payload.action === 'CREATE_ACCOUNT') {
-              handleScreenChange('WELCOME_SUCCESS');
+          onAuthSuccess={async (payload) => {
+            try {
+              setAuthPayload(payload);
+
+              if (payload.action === 'SIGN_IN') {
+                await authService.loginWithCredentials({
+                  identifier: payload.identifier,
+                  password: payload.password,
+                });
+                handleScreenChange('BIOMETRIC_SETUP');
+                return { success: true };
+              }
+
+              if (payload.action === 'CREATE_ACCOUNT') {
+                await authService.registerWithCredentials({
+                  fullName: payload.fullName,
+                  identifier: payload.identifier,
+                  password: payload.password,
+                });
+                handleScreenChange('WELCOME_SUCCESS');
+                return { success: true };
+              }
+
+              if (payload.action === 'SOCIAL_AUTH') {
+                return { success: false, error: 'Social authentication is not configured yet.' };
+              }
+
+              return { success: false, error: 'Unsupported authentication action.' };
+            } catch (error) {
+              return { success: false, error: error?.message || 'Authentication request failed.' };
             }
           }}
           onForgotPassword={() => handleScreenChange('FORGOT_PASSWORD')}
