@@ -1,13 +1,17 @@
-# monorepo root ignores
+# Monorepo root
 node_modules/
-.expo/
-.vscode/
+.DS_Store
 
-# app module
+# Frontend module
 customer-app/node_modules/
 customer-app/.expo/
 customer-app/.vscode/
+customer-app/dist/
+customer-app/web-build/
 
-# backend module
+# Backend module
 customer-backend/node_modules/
 customer-backend/.env
+
+# Local editor artifacts
+.vscode/
