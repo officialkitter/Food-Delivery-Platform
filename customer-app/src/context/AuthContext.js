@@ -5,8 +5,8 @@
  */
 
 import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StorageKeys } from '../constants';
+import { localStorage } from '../services/localStorage';
 
 const AuthContext = createContext(null);
 
@@ -19,14 +19,12 @@ export const AuthProvider = ({ children }) => {
   // Checks device flash memory for pre-existing validation states on boot
   useEffect(() => {
     const initializeSessionState = async () => {
-      const storedToken = await AsyncStorage.getItem(StorageKeys.USER_TOKEN).catch(() => null);
-      const storedProfile = await AsyncStorage.getItem(StorageKeys.USER_PROFILE).catch(() => null);
+      const storedToken = await localStorage.getItem(StorageKeys.USER_TOKEN);
+      const storedProfile = await localStorage.getItem(StorageKeys.USER_PROFILE);
 
       if (storedToken && storedProfile) {
         setToken(storedToken);
-        setUser(JSON.parse(storedProfile));
-      } else {
-        setError('Session token reconstruction layer failure.');
+        setUser(typeof storedProfile === 'string' ? JSON.parse(storedProfile) : storedProfile);
       }
 
       setIsLoading(false);
@@ -55,8 +53,8 @@ export const AuthProvider = ({ children }) => {
       profile: { id: 'usr_812', name: 'Premium Client', phone: phoneNumber, tier: 'VIP' }
     };
 
-    await AsyncStorage.setItem(StorageKeys.USER_TOKEN, mockPayload.token);
-    await AsyncStorage.setItem(StorageKeys.USER_PROFILE, JSON.stringify(mockPayload.profile));
+    await localStorage.setItem(StorageKeys.USER_TOKEN, mockPayload.token);
+    await localStorage.setItem(StorageKeys.USER_PROFILE, mockPayload.profile);
 
     setToken(mockPayload.token);
     setUser(mockPayload.profile);
@@ -67,7 +65,7 @@ export const AuthProvider = ({ children }) => {
   // Action: Wipe credentials on logout
   const terminateSession = useCallback(async () => {
     setIsLoading(true);
-    await AsyncStorage.multiRemove([StorageKeys.USER_TOKEN, StorageKeys.USER_PROFILE]);
+    await localStorage.multiDelete([StorageKeys.USER_TOKEN, StorageKeys.USER_PROFILE]);
     setToken(null);
     setUser(null);
     setIsLoading(false);

@@ -156,8 +156,8 @@ export const CountryCodes = [
 ];
 
 export const Currencies = {
-  primary: { code: 'USD', symbol: '$', decimalPlaces: 2 },
-  secondary: { code: 'AED', symbol: 'AED ', decimalPlaces: 2 }
+  primary: { code: 'TZS', symbol: 'TSh ', decimalPlaces: 0 },
+  secondary: { code: 'TZS', symbol: 'TSh ', decimalPlaces: 0 }
 };
 
 // ==========================================

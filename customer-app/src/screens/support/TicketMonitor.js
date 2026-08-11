@@ -1,84 +1,84 @@
-import React from 'react';
-import propTypes from 'prop-types';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import { useAppTheme } from './ThemeContext';
-import { ArrowLeft, GitCommit, ShieldCheck } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+/**
+ * Buza Food Delivery Mobile Application
+ * Open Support Cases Milestone Timeline Monitor View
+ * File: src/screens/ticketmonitor.js
+ */
 
-export default function TicketMonitor({ navigation }) {
-  const { styles } = useAppTheme();
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions, Animated, TouchableOpacity, ScrollView, StatusBar, Easing } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CustomIcon } from '../../components/common/CustomIcon';
+
+const { width: TW, height: TH } = Dimensions.get('window');
+const C = { primary: '#FF7F50', background: '#FFFFFF', textDark: '#052A30', textMuted: '#1E6B7B', surface: '#F7FAFA', border: '#EAF2F2', success: '#4CD964' };
+
+export default function TicketMonitorScreen({ onBackPress, ticketId = "TCK-48102" }) {
+  const insets = useSafeAreaInsets();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseScale = useRef(new Animated.Value(1)).current;
+  const driftY = useRef(new Animated.Value(TH)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.loop(Animated.sequence([
+        Animated.timing(pulseScale, { toValue: 1.25, duration: 1200, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulseScale, { toValue: 1, duration: 1200, easing: Easing.in(Easing.ease), useNativeDriver: true })
+      ])),
+      Animated.loop(Animated.sequence([
+        Animated.timing(driftY, { toValue: -80, duration: 9000, easing: Easing.linear, useNativeDriver: true }),
+        Animated.timing(driftY, { toValue: TH, duration: 0, useNativeDriver: true })
+      ]))
+    ]).start();
+  }, []);
 
   const milestones = [
-    { id: 1, title: 'Dispute Record Initiated', desc: 'Metadata captured and synced into secure operational tables.', time: 'Today, 14:02', done: true },
-    { id: 2, title: 'Merchant Evaluation', desc: 'Payload checked against original ItemCustomize.js basket matrix configurations.', time: 'Today, 14:15', done: true },
-    { id: 3, title: 'Compensation Allocation', desc: 'Resolving credit distribution bounds through Python computational logic loops.', time: 'Processing...', done: false }
+    { title: 'Ticket Registered', body: 'Dispute filed successfully inside account databases.', done: true, time: '10:00 AM' },
+    { title: 'Legal Queue Allocation', body: 'Assigned to specialized care auditors for diagnostics.', done: true, time: '11:15 AM' },
+    { title: 'Investigation Routine', body: 'Reviewing delivery coordinates, receipt tallies, and logs.', done: false, time: 'Processing' }
   ];
 
   return (
-    <SafeAreaView style={[stylesMonitor.container, { backgroundColor: styles.background }]}>
-      <View style={stylesMonitor.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={22} color={styles.textPrimary} />
-        </TouchableOpacity>
-        <Text style={[stylesMonitor.headerTitle, { color: styles.textPrimary }]}>Claim Status Pipeline</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Animated.View style={[styles.drift, { left: '80%', transform: [{ translateY: driftY }] }]}><CustomIcon name="list" size={24} color={C.primary + '15'} /></Animated.View>
       </View>
-
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <View style={[stylesMonitor.statusSummary, { backgroundColor: styles.surface, borderColor: styles.accentBorder }]}>
-          <Text style={[stylesMonitor.summaryLabel, { color: styles.textSecondary }]}>ACTIVE CLAIM ID</Text>
-          <Text style={[stylesMonitor.summaryId, { color: styles.textPrimary }]}>#BUZA-7401-MDB</Text>
-          <View style={[stylesMonitor.badge, { backgroundColor: styles.accentGlow }]}>
-            <Text style={[stylesMonitor.badgeText, { color: styles.accentSolid }]}>UNDER MEDIATION REVIEW</Text>
-          </View>
+      <Animated.View style={[styles.workspace, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 20, opacity: fadeAnim }]}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.back} onPress={onBackPress}><CustomIcon name="arrow-left" size={18} color={C.textDark} /></TouchableOpacity>
+          <View style={{ alignItems: 'flex-end' }}><Text style={styles.lbl}>CASE MONITOR</Text><Text style={styles.title}>ID: {ticketId}</Text></View>
         </View>
-
-        <Text style={[stylesMonitor.timelineTitle, { color: styles.textPrimary }]}>System Resolution Path</Text>
-
-        <View style={stylesMonitor.timelineContainer}>
-          {milestones.map((step, index) => (
-            <View key={step.id} style={stylesMonitor.timelineRow}>
-              <View style={stylesMonitor.nodeCol}>
-                <View style={[stylesMonitor.circleNode, { backgroundColor: step.done ? styles.accentSolid : styles.surface, borderColor: styles.accentBorder }]}>
-                  {step.done ? <ShieldCheck size={12} color="#FFFFFF" /> : <GitCommit size={12} color={styles.textSecondary} />}
-                </View>
-                {index < milestones.length - 1 && <View style={[stylesMonitor.verticalLine, { backgroundColor: step.done ? styles.accentSolid : styles.accentGlow }]} />}
+        <ScrollView style={{ flex: 1, marginVertical: 16 }} showsVerticalScrollIndicator={false}>
+          {milestones.map((item, idx) => (
+            <View key={idx} style={styles.row}>
+              <View style={styles.indicatorAxis}>
+                {!item.done && <Animated.View style={[styles.radar, { transform: [{ scale: pulseScale }] }]} />}
+                <View style={[styles.node, item.done ? styles.nodeDone : styles.nodePending]}><CustomIcon name={item.done ? "check" : "clock"} size={12} color={item.done ? '#FFFFFF' : C.textMuted} /></View>
+                {idx !== milestones.length - 1 && <View style={[styles.axisLine, item.done && { backgroundColor: C.success }]} />}
               </View>
-              <View style={stylesMonitor.contentCol}>
-                <Text style={[stylesMonitor.stepTitle, { color: styles.textPrimary, fontWeight: step.done ? '700' : '500' }]}>{step.title}</Text>
-                <Text style={[stylesMonitor.stepDesc, { color: styles.textSecondary }]}>{step.desc}</Text>
-                <Text style={[stylesMonitor.stepTime, { color: styles.accentSolid }]}>{step.time}</Text>
+              <View style={styles.content}>
+                <View style={styles.rowSpace}><Text style={[styles.mTitle, !item.done && { color: C.primary }]}>{item.title}</Text><Text style={styles.mTime}>{item.time}</Text></View>
+                <Text style={styles.mBody}>{item.body}</Text>
               </View>
             </View>
           ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+        <TouchableOpacity style={styles.btn} activeOpacity={0.85} onPress={onBackPress}><Text style={styles.btnTxt}>Return to Support Desk</Text></TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }
 
-TicketMonitor.propTypes = {
-  navigation: propTypes.shape({
-    goBack: propTypes.func.isRequired,
-  }).isRequired,
-};
-
-const stylesMonitor = StyleSheet.create({
-  container: { flex: 1 },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12 },
-  headerTitle: { fontSize: 18, fontWeight: '700', marginLeft: 16 },
-  statusSummary: { padding: 20, borderRadius: 16, borderWidth: 1, marginBottom: 28 },
-  summaryLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 1 },
-  summaryId: { fontSize: 22, fontWeight: '800', marginTop: 4 },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginTop: 12 },
-  badgeText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.5 },
-  timelineTitle: { fontSize: 14, fontWeight: '700', letterSpacing: 0.5, marginBottom: 16 },
-  timelineContainer: { paddingLeft: 8 },
-  timelineRow: { flexDirection: 'row', minHeight: 80 },
-  nodeCol: { alignItems: 'center', marginRight: 16 },
-  circleNode: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  verticalLine: { flex: 1, width: 2, marginVertical: 4 },
-  contentCol: { flex: 1, paddingBottom: 24 },
-  stepTitle: { fontSize: 15 },
-  stepDesc: { fontSize: 12, marginTop: 3, lineHeight: 16 },
-  stepTime: { fontSize: 11, marginTop: 4, fontWeight: '600' }
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.background }, workspace: { flex: 1, paddingHorizontal: 24, justifyContent: 'space-between' }, rowSpace: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }, drift: { position: 'absolute', opacity: 0.8 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: C.border },
+  back: { width: 44, height: 44, borderRadius: 22, backgroundColor: C.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border },
+  lbl: { fontSize: 9, fontWeight: '800', color: C.textMuted, letterSpacing: 0.5 }, title: { fontSize: 14, fontWeight: '800', color: C.textDark, marginTop: 2 },
+  row: { flexDirection: 'row', width: '100%', minHeight: 74 }, indicatorAxis: { alignItems: 'center', marginRight: 16, width: 24, position: 'relative' },
+  node: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 2, zIndex: 10, backgroundColor: '#FFFFFF' }, nodeDone: { backgroundColor: C.success, borderColor: C.success }, nodePending: { borderColor: C.border },
+  radar: { position: 'absolute', width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255, 127, 80, 0.08)', borderWidth: 1, borderColor: 'rgba(255, 127, 80, 0.15)', top: -6 },
+  axisLine: { width: 2, flex: 1, backgroundColor: C.border, marginVertical: -2 }, content: { flex: 1, paddingBottom: 20, justifyContent: 'flex-start', paddingTop: 2 },
+  mTitle: { fontSize: 15, fontWeight: '800', color: C.textDark, letterSpacing: -0.1 }, mTime: { fontSize: 11, fontWeight: '700', color: C.textMuted }, mBody: { fontSize: 12, fontWeight: '500', color: C.textMuted, marginTop: 4, lineHeight: 18 },
+  btn: { width: '100%', height: 54, borderRadius: 27, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center' }, btnTxt: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' }
 });

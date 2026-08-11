@@ -35,7 +35,7 @@ export const useVendorSlice = () => {
           name: 'Pizzeria Napoli & Artisan Drinks',
           rating: 4.7,
           deliveryTime: '15-25',
-          deliveryFee: '$2.99',
+          deliveryFee: 'TZS 2,990',
           tags: ['Pizza', 'Italian', 'Vegetarian'],
           imageUrl: 'https://unsplash.com',
         }

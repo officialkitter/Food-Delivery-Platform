@@ -1,118 +1,70 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useAppTheme } from './ThemeContext';
-import { AlertCircle, Clock, CreditCard, ChevronRight, MessageSquare, ShieldCheck, ShieldAlert } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+/**
+ * Buza Food Delivery Mobile Application
+ * Core Help Center System Manuals & Guides Feed View
+ * File: src/screens/helpcenter.js
+ */
 
-export default function HelpCenter() {
-  const navigation = useNavigation();
-  const theme = useAppTheme();
-  const styles = theme.styles || theme.activeTheme;
-  const activeTheme = theme.activeTheme || theme.styles || { tier_level: 'BASIC' };
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions, Animated, TouchableOpacity, ScrollView, StatusBar, Easing } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CustomIcon } from '../../components/common/CustomIcon';
 
-  const triageCategories = [
-    { id: 'missing_toppings', title: 'Missing Ingredients & Toppings', sub: 'Incomplete merchant assemblies or order variances.', icon: AlertCircle },
-    { id: 'late_riders', title: 'Late Riders & Fulfillment Delays', sub: 'Active tracking problems, delivery stalls, or routing issues.', icon: Clock },
-    { id: 'payment_issues', title: 'Payment Gateways & Discrepancies', sub: 'M-Pesa validation errors, card drops, double charges.', icon: CreditCard },
+const { width: TW, height: TH } = Dimensions.get('window');
+const C = { primary: '#FF7F50', background: '#FFFFFF', textDark: '#052A30', textMuted: '#1E6B7B', surface: '#F7FAFA', border: '#EAF2F2' };
+
+export default function HelpCenterHubScreen({ onBackPress, onSelectManual }) {
+  const insets = useSafeAreaInsets();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const driftY = useRef(new Animated.Value(TH)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 450, useNativeDriver: true }),
+      Animated.loop(Animated.sequence([
+        Animated.timing(driftY, { toValue: -80, duration: 9500, easing: Easing.linear, useNativeDriver: true }),
+        Animated.timing(driftY, { toValue: TH, duration: 0, useNativeDriver: true })
+      ]))
+    ]).start();
+  }, []);
+
+  const manuals = [
+    { title: 'Marketplace Navigation Manual', desc: 'How to purchase products and apply coupons.' },
+    { title: 'Fulfillment Logistics Guidelines', desc: 'Understanding courier routes, timing, and zones.' },
+    { title: 'Secure Payment Protocols', desc: 'Managing debit balances, card storage, and processing.' }
   ];
 
   return (
-    <SafeAreaView style={[globalStyles.container, { backgroundColor: styles.background }]}>
-      <View style={globalStyles.headerContainer}>
-        <Text style={[globalStyles.metaTitle, { color: styles.accentSolid }]}>DIAGNOSTIC SYSTEM CENTRAL</Text>
-        <Text style={[globalStyles.mainTitle, { color: styles.textPrimary }]}>Help & Resolution Triage</Text>
-        <Text style={[globalStyles.subtitle, { color: styles.textSecondary }]}>
-          Active Tier Workspace: {activeTheme.tier_level}
-        </Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Animated.View style={[styles.drift, { left: '15%', transform: [{ translateY: driftY }] }]}><CustomIcon name="service" size={24} color={C.primary + '15'} /></Animated.View>
       </View>
-
-      <ScrollView contentContainerStyle={globalStyles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={[stylesInternal.sectionHeading, { color: styles.textPrimary }]}>Immediate Issue Inquiries</Text>
-        {triageCategories.map((item) => {
-          const IconComponent = item.icon;
-          return (
-            <TouchableOpacity
-              key={item.id}
-              style={[stylesInternal.triageCard, { backgroundColor: styles.surface, borderColor: styles.accentBorder }]}
-              activeOpacity={0.8}
-              onPress={() => navigation.navigate('DisputeTerminal', { CategoryId: item.id })}
-            >
-              <View style={[stylesInternal.iconContainer, { backgroundColor: styles.accentGlow }]}>
-                <IconComponent size={22} color={styles.accentSolid} />
-              </View>
-              <View style={stylesInternal.textFrame}>
-                <Text style={[stylesInternal.cardTitle, { color: styles.textPrimary }]}>{item.title}</Text>
-                <Text style={[stylesInternal.cardSub, { color: styles.textSecondary }]}>{item.sub}</Text>
-              </View>
-              <ChevronRight size={18} color={styles.textSecondary} />
-            </TouchableOpacity>
-          );
-        })}
-
-        <Text style={[stylesInternal.sectionHeading, { color: styles.textPrimary, marginTop: 24 }]}>Operational Shortcuts</Text>
-        <View style={stylesInternal.gridContainer}>
-          <TouchableOpacity 
-            style={[stylesInternal.gridButton, { backgroundColor: styles.surface }]}
-            onPress={() => navigation.navigate('LiveSupport')}
-          >
-            <MessageSquare size={20} color={styles.accentSolid} />
-            <Text style={[stylesInternal.gridLabel, { color: styles.textPrimary }]}>Live Chat</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[stylesInternal.gridButton, { backgroundColor: styles.surface }]}
-            onPress={() => navigation.navigate('TicketMonitor')}
-          >
-            <Clock size={20} color={styles.accentSolid} />
-            <Text style={[stylesInternal.gridLabel, { color: styles.textPrimary }]}>Claims Monitor</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[stylesInternal.gridButton, { backgroundColor: styles.surface }]}
-            onPress={() => navigation.navigate('SecurityDash')}
-          >
-            <ShieldCheck size={20} color={styles.accentSolid} />
-            <Text style={[stylesInternal.gridLabel, { color: styles.textPrimary }]}>Security</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[stylesInternal.gridButton, { backgroundColor: styles.surface }]}
-            onPress={() => navigation.navigate('CacheCleaner')}
-          >
-            <ShieldAlert size={20} color={styles.accentSolid} />
-            <Text style={[stylesInternal.gridLabel, { color: styles.textPrimary }]}>Storage Engine</Text>
-          </TouchableOpacity>
+      <Animated.View style={[styles.workspace, { paddingTop: insets.top + 10, opacity: fadeAnim }]}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.back} onPress={onBackPress}><CustomIcon name="arrow-left" size={18} color={C.textDark} /></TouchableOpacity>
+          <View style={{ alignItems: 'flex-end' }}><Text style={styles.lbl}>MANUALS REFERENCE</Text><Text style={styles.title}>Help Center</Text></View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 14 }} showsVerticalScrollIndicator={false}>
+          {manuals.map((item, idx) => (
+            <TouchableOpacity key={idx} style={styles.pill} activeOpacity={0.8} onPress={() => onSelectManual?.(idx)}>
+              <View style={styles.iconCircle}><CustomIcon name="service" size={16} color={C.textDark} /></View>
+              <View style={{ flex: 1 }}><Text style={styles.pillTitle}>{item.title}</Text><Text style={styles.pillDetail}>{item.desc}</Text></View>
+              <Text style={styles.carat}>▾</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </Animated.View>
+    </View>
   );
 }
 
-const globalStyles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 40 },
-  headerContainer: { paddingHorizontal: 20, marginBottom: 16 },
-  metaTitle: { fontSize: 11, fontWeight: '800', letterSpacing: 1.5, marginBottom: 4 },
-  mainTitle: { fontSize: 26, fontWeight: '700', letterSpacing: -0.5 },
-  subtitle: { fontSize: 13, marginTop: 2, fontWeight: '500' },
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 100 }
-});
-
-const stylesInternal = StyleSheet.create({
-  sectionHeading: { fontSize: 14, fontWeight: '700', letterSpacing: 0.5, marginBottom: 12 },
-  triageCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 12
-  },
-  iconContainer: { padding: 10, borderRadius: 12, marginRight: 14 },
-  textFrame: { flex: 1, paddingRight: 8 },
-  cardTitle: { fontSize: 15, fontWeight: '600' },
-  cardSub: { fontSize: 12, marginTop: 2, lineHeight: 16 },
-  gridContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  gridButton: { width: '48%', paddingVertical: 16, alignItems: 'center', borderRadius: 16, marginBottom: 12 },
-  gridLabel: { fontSize: 13, fontWeight: '600', marginTop: 8 }
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.background }, workspace: { flex: 1 }, drift: { position: 'absolute', opacity: 0.8 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: C.border },
+  back: { width: 44, height: 44, borderRadius: 22, backgroundColor: C.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border },
+  lbl: { fontSize: 9, fontWeight: '800', color: C.textMuted, letterSpacing: 0.5 }, title: { fontSize: 14, fontWeight: '800', color: C.textDark, marginTop: 2 },
+  pill: { flexDirection: 'row', alignItems: 'center', width: '100%', minHeight: 64, borderRadius: 32, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border, paddingHorizontal: 16, marginBottom: 12 },
+  iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border, marginRight: 12 },
+  pillTitle: { fontSize: 14, fontWeight: '800', color: C.textDark }, pillDetail: { fontSize: 11, fontWeight: '500', color: C.textMuted, marginTop: 2 },
+  carat: { fontSize: 14, color: C.textMuted, fontWeight: '700', transform: [{ rotate: '-90deg' }] }
 });

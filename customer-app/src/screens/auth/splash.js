@@ -22,11 +22,12 @@ import { CustomIcon } from '../../components/common/CustomIcon';
 
 const { width, height } = Dimensions.get('window');
 
+// Inverted to premium White layout with balanced Salmon and Dark Turquoise palettes
 const SPLASH_COLORS = {
   primary: '#FF7F50',       // Salmon brand highlight color
-  charcoal: '#052A30',      // Deep premium Dark Turquoise canvas fill
-  white: '#FFFFFF',         // Clean text
-  textMuted: '#A2C4C9',     // Blended turquoise paragraph descriptions
+  background: '#FFFFFF',    // Crisp white primary screen canvas
+  textDark: '#052A30',      // Deep high-contrast Dark Turquoise for main typography
+  textMuted: '#1E6B7B',     // Mid-tone Turquoise for supporting paragraph descriptions
 };
 
 /**
@@ -36,13 +37,13 @@ export default function SplashScreen({ onInitializationComplete }) {
   const { colors } = useTheme();
   const themePrimary = colors?.primary || SPLASH_COLORS.primary;
 
-  // Primary branding element animation vectors
+  // Primary branding element animation vectors (Kept original logic)
   const logoScaleAnim = useRef(new Animated.Value(0.85)).current;
   const logoOpacityAnim = useRef(new Animated.Value(0)).current;
   const textOpacityAnim = useRef(new Animated.Value(0)).current;
   const textTranslateYAnim = useRef(new Animated.Value(15)).current;
 
-  // Floating ambient bubble animation vectors
+  // Floating ambient bubble animation vectors (Kept original logic)
   const bubbleOneY = useRef(new Animated.Value(height)).current;
   const bubbleTwoY = useRef(new Animated.Value(height)).current;
   const bubbleThreeY = useRef(new Animated.Value(height)).current;
@@ -110,10 +111,12 @@ export default function SplashScreen({ onInitializationComplete }) {
 
   return (
     <View style={styles.masterContainer}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      {/* Light status bar icons for high visibility on absolute white canvas */}
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
 
       {/* Cinematic Ambient Canvas Backdrop Frame Layer */}
       <View style={StyleSheet.absoluteFill}>
+        {/* Explicitly updated background bubble configurations */}
         <View style={styles.orbOne} />
         <View style={styles.orbTwo} />
         <View style={styles.grid} />
@@ -127,7 +130,7 @@ export default function SplashScreen({ onInitializationComplete }) {
       {/* Main Core Viewport Elements Layout Canvas Frame - Perfectly Centered */}
       <View style={styles.brandingCenterpieceWorkspace}>
         
-        {/* Animated Brand Identity Centerpiece - Completely Frameless and Borderless */}
+        {/* Animated Brand Identity Centerpiece */}
         <Animated.View 
           style={[
             styles.logoContainer, 
@@ -136,7 +139,7 @@ export default function SplashScreen({ onInitializationComplete }) {
         >
           <CustomIcon
             name="buza-branding"
-            size={96} // Large unrestricted resolution presentation workspace
+            size={96}
             color={themePrimary}
             useBrandAsset
           />
@@ -170,19 +173,19 @@ const styles = StyleSheet.create({
   // Root Layout Canvas Configurations
   masterContainer: {
     flex: 1,
-    backgroundColor: SPLASH_COLORS.charcoal,
+    backgroundColor: SPLASH_COLORS.background,
   },
-  // Background gradient mesh textures
-  orbOne: { position: 'absolute', top: -40, right: -50, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(72, 209, 204, 0.25)' },
-  orbTwo: { position: 'absolute', bottom: -60, left: -40, width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(255, 127, 80, 0.12)' },
-  grid: { ...StyleSheet.absoluteFillObject, borderWidth: 1, borderColor: 'rgba(255,255,255,0.015)' },
+  // Background gradient mesh textures (Calibrated Dark Turquoise and Salmon backgrounds)
+  orbOne: { position: 'absolute', top: -40, right: -50, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(5, 42, 48, 0.05)' },
+  orbTwo: { position: 'absolute', bottom: -60, left: -40, width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(255, 127, 80, 0.07)' },
+  grid: { ...StyleSheet.absoluteFillObject, borderWidth: 1, borderColor: 'rgba(5, 42, 48, 0.01)' },
   
   // Custom clear ambient rising bubble elements configuration
   bubbleAsset: {
     position: 'absolute',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(5, 42, 48, 0.02)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(5, 42, 48, 0.06)',
   },
   bubbleOne: {
     left: width * 0.15,
@@ -195,7 +198,7 @@ const styles = StyleSheet.create({
     width: 55,
     height: 55,
     borderRadius: 55 / 2,
-    borderColor: 'rgba(72, 209, 204, 0.2)',
+    borderColor: 'rgba(255, 127, 80, 0.15)', // Bottom-right bubble highlighted in subtle Salmon 
   },
   bubbleThree: {
     left: width * 0.45,
@@ -212,14 +215,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
 
-  // Central Completely Frameless Logo Container
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 28,
   },
 
-  // Typography Grid Metrics Selection
   typographyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   mainTitleHeader: {
     fontSize: 24,
     fontWeight: '900',
-    color: SPLASH_COLORS.white,
+    color: SPLASH_COLORS.textDark,
     letterSpacing: 2,
     textAlign: 'center',
     marginBottom: 10,
@@ -242,7 +243,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
 
-  // Lower Loading Block layout alignment elements
   loadingIndicatorContainer: {
     justifyContent: 'center',
     alignItems: 'center',

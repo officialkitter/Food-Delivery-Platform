@@ -11,8 +11,8 @@ export const AppConfig = {
   companyLegalName: 'Buza Technologies Ltd.',
   supportEmail: 'concierge@buzaapp.com',
   clientTimeoutMs: 15000,
-  defaultCurrency: 'USD',
-  defaultLocale: 'en-US',
+  defaultCurrency: 'TZS',
+  defaultLocale: 'sw-TZ',
 };
 
 export const StorageKeys = {

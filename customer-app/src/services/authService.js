@@ -51,6 +51,24 @@ export const authService = {
     return response;
   },
 
+  async loginWithGoogleIdToken({ idToken }) {
+    const response = await apiclient.post(ApiEndpoints.auth.google, {
+      idToken: String(idToken || '').trim(),
+    });
+
+    const accessToken = response?.data?.accessToken;
+    const profile = response?.data?.user;
+
+    if (accessToken) {
+      await localStorage.setSecureItem(StorageKeys.USER_TOKEN, accessToken);
+    }
+    if (profile) {
+      await localStorage.setItem(StorageKeys.USER_PROFILE, profile);
+    }
+
+    return response;
+  },
+
   /**
    * Transmits an onboard request to dispatch a secure multi-factor SMS code
    */

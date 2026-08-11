@@ -1,55 +1,56 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import { useAppTheme } from './ThemeContext';
-import { ArrowLeft, EyeOff } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import propTypes from 'prop-types';
+/**
+ * Buza Food Delivery Mobile Application
+ * Core Data Logging Privacy Regulation Policy View
+ * File: src/screens/privacypolicy.js
+ */
 
-PrivacyPolicy.propTypes = {
-  navigation: propTypes.object.isRequired,
-};
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions, Animated, TouchableOpacity, ScrollView, StatusBar, Easing } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CustomIcon } from '../../components/common/CustomIcon';
 
-export default function PrivacyPolicy({ navigation }) {
-  const { styles } = useAppTheme();
+const { width: TW, height: TH } = Dimensions.get('window');
+const C = { primary: '#FF7F50', background: '#FFFFFF', textDark: '#052A30', textMuted: '#1E6B7B', surface: '#F7FAFA', border: '#EAF2F2' };
+
+export default function PrivacyPolicyScreen({ onBackPress }) {
+  const insets = useSafeAreaInsets();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const driftY = useRef(new Animated.Value(TH)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 450, useNativeDriver: true }),
+      Animated.loop(Animated.sequence([
+        Animated.timing(driftY, { toValue: -80, duration: 9500, easing: Easing.linear, useNativeDriver: true }),
+        Animated.timing(driftY, { toValue: TH, duration: 0, useNativeDriver: true })
+      ]))
+    ]).start();
+  }, []);
 
   return (
-    <SafeAreaView style={[stylesPolicy.container, { backgroundColor: styles.background }]}>
-      <View style={stylesPolicy.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <ArrowLeft size={22} color={styles.textPrimary} />
-        </TouchableOpacity>
-        <EyeOff size={20} color={styles.accentSolid} style={{ marginLeft: 16 }} />
-        <Text style={[stylesPolicy.headerTitle, { color: styles.textPrimary }]}>Data Privacy Framework</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Animated.View style={[styles.drift, { left: '15%', transform: [{ translateY: driftY }] }]}><CustomIcon name="lock" size={24} color={C.primary + '15'} /></Animated.View>
       </View>
-
-      <ScrollView contentContainerStyle={stylesPolicy.scrollContext} showsVerticalScrollIndicator={false}>
-        <Text style={[stylesPolicy.metaDate, { color: styles.accentSolid }]}>COMPLIANCE SPEC: GDPR-V2-MDB</Text>
-        
-        <Text style={[stylesPolicy.clauseHeader, { color: styles.textPrimary }]}>Data Stripping and Archival Rules</Text>
-        <Text style={[stylesPolicy.clauseBody, { color: styles.textSecondary }]}>
-          At precisely the 24-hour validity mark, automated backend execution workers remove personal identifiers, device telemetry records, and user associations from operational data entries. Raw numerical arrays outlining flavor profiles are detached and moved to the long-term historical trends database for cold analytics.
-        </Text>
-
-        <Text style={[stylesPolicy.clauseHeader, { color: styles.textPrimary }]}>Biometric Metadata Allocation</Text>
-        <Text style={[stylesPolicy.clauseBody, { color: styles.textSecondary }]}>
-          FaceID, TouchID, and associated passkey metrics are calculated entirely within isolated hardware subsystems. The application frontend receives only signed validation outputs from native bridges. It does not ingest, cache, or transmit raw biometric identifiers across the cloud network.
-        </Text>
-
-        <Text style={[stylesPolicy.clauseHeader, { color: styles.textPrimary }]}>Geographic Coordinate Streams</Text>
-        <Text style={[stylesPolicy.clauseBody, { color: styles.textSecondary }]}>
-          Active geolocation parameters captured during delivery pipelines stream via encrypted real-time sockets to maintain tracking views. These high-frequency updates overwrite previous data blocks automatically, preventing the retention of permanent customer location profiles.
-        </Text>
-      </ScrollView>
-    </SafeAreaView>
+      <Animated.View style={[styles.workspace, { paddingTop: insets.top + 10, opacity: fadeAnim }]}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.back} onPress={onBackPress}><CustomIcon name="arrow-left" size={18} color={C.textDark} /></TouchableOpacity>
+          <View style={{ alignItems: 'flex-end' }}><Text style={styles.lbl}>DATA PROTOCOLS</Text><Text style={styles.title}>Privacy Policy</Text></View>
+        </View>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 20 }} showsVerticalScrollIndicator={false}>
+          <Text style={styles.h}>1. Telemetry and coordinates logs</Text><Text style={styles.p}>Platform background architecture tracks destination address pins, regional location indices, and telemetry logs strictly to secure checkout maps execution and optimize driver courier routing speeds.</Text>
+          <Text style={styles.h}>2. Financial token storage</Text><Text style={styles.p}>Credit card details, account wallet records, and mobile money phone indicators are encrypted via standard 256-Bit SSL handshakes. Absolute structural storage happens off-device inside certified PCI-DSS compliant vault servers.</Text>
+        </ScrollView>
+      </Animated.View>
+    </View>
   );
 }
 
-const stylesPolicy = StyleSheet.create({
-  container: { flex: 1 },
-  headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12 },
-  headerTitle: { fontSize: 16, fontWeight: '700', marginLeft: 8 },
-  scrollContext: { padding: 20, paddingBottom: 60 },
-  metaDate: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5, marginBottom: 16 },
-  clauseHeader: { fontSize: 14, fontWeight: '700', marginTop: 16, marginBottom: 6 },
-  clauseBody: { fontSize: 13, lineHeight: 20, textAlign: 'justify' }
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.background }, workspace: { flex: 1 }, drift: { position: 'absolute', opacity: 0.8 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: C.border },
+  back: { width: 44, height: 44, borderRadius: 22, backgroundColor: C.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border },
+  lbl: { fontSize: 9, fontWeight: '800', color: C.textMuted, letterSpacing: 0.5 }, title: { fontSize: 14, fontWeight: '800', color: C.textDark, marginTop: 2 },
+  h: { fontSize: 15, fontWeight: '800', color: C.textDark, marginBottom: 8, letterSpacing: -0.1 }, p: { fontSize: 13, fontWeight: '500', color: C.textMuted, lineHeight: 22, marginBottom: 20 }
 });

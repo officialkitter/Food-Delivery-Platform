@@ -1,8 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { Formatter } from '../../shared/utils/formatters';
 
-const RowItem = ({ label, value, isBold = false, isDiscount = false, colors, currencySymbol = '$', spacing }) => (
+const toAmount = (value) => {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : 0;
+};
+
+const RowItem = ({ label, value, isBold = false, isDiscount = false, colors, spacing }) => (
   <View style={[styles.row, { marginVertical: spacing.xs }]}>
     <Text style={[isBold ? styles.boldText : styles.normalText, { color: colors.textSecondary }]}>
       {label}
@@ -11,7 +17,7 @@ const RowItem = ({ label, value, isBold = false, isDiscount = false, colors, cur
       isBold ? styles.boldValue : styles.normalValue, 
       { color: isDiscount ? colors.secondary : colors.text }
     ]}>
-      {isDiscount ? '-' : ''}{currencySymbol}{value.toFixed(2)}
+      {isDiscount ? '-' : ''}{Formatter.formatCurrency(toAmount(value), 'TZS')}
     </Text>
   </View>
 );
@@ -22,23 +28,22 @@ export const PriceBreakdown = ({
   tax,
   discount,
   total,
-  currencySymbol = '$',
 }) => {
   const { colors, spacing } = useTheme();
 
   return (
     <View style={[styles.container, { paddingVertical: spacing.md }]}>
-      <RowItem label="Subtotal" value={subtotal} colors={colors} currencySymbol={currencySymbol} spacing={spacing} />
-      <RowItem label="Delivery Fee" value={deliveryFee} colors={colors} currencySymbol={currencySymbol} spacing={spacing} />
-      <RowItem label="Tax & Fees" value={tax} colors={colors} currencySymbol={currencySymbol} spacing={spacing} />
-      {discount > 0 && <RowItem label="Promo Discount" value={discount} isDiscount colors={colors} currencySymbol={currencySymbol} spacing={spacing} />}
+      <RowItem label="Subtotal" value={subtotal} colors={colors} spacing={spacing} />
+      <RowItem label="Delivery Fee" value={deliveryFee} colors={colors} spacing={spacing} />
+      <RowItem label="Tax & Fees" value={tax} colors={colors} spacing={spacing} />
+      {discount > 0 && <RowItem label="Promo Discount" value={discount} isDiscount colors={colors} spacing={spacing} />}
       
       <View style={[styles.divider, { backgroundColor: colors.border, marginVertical: spacing.sm }]} />
       
       <View style={styles.row}>
         <Text style={[styles.totalLabel, { color: colors.text }]}>Total Price</Text>
         <Text style={[styles.totalValue, { color: colors.accent }]}>
-          {currencySymbol}{total.toFixed(2)}
+          {Formatter.formatCurrency(toAmount(total), 'TZS')}
         </Text>
       </View>
     </View>

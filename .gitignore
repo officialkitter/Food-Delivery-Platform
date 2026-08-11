@@ -12,6 +12,12 @@ customer-app/web-build/
 # Backend module
 customer-backend/node_modules/
 customer-backend/.env
+customer-backend/firebase-service-account.json
+customer-backend/firebase-service-account.*.json
+
+# Mobile credential files
+customer-app/google-services.json
+customer-app/GoogleService-Info.plist
 
 # Local editor artifacts
 .vscode/

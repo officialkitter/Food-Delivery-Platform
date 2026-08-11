@@ -10,15 +10,22 @@ export const Formatter = {
    * Encapsulates raw numeric figures cleanly into highly stylized localized currency patterns
    * Handles custom trailing/leading notation structures seamlessly
    */
-  formatCurrency: (amountValue, targetCurrencyCode = 'USD') => {
+  formatCurrency: (amountValue, targetCurrencyCode = 'TZS') => {
     const numericAmount = Number(amountValue);
-    if (Number.isNaN(numericAmount)) return '0.00';
+    if (Number.isNaN(numericAmount)) {
+      return new Intl.NumberFormat('sw-TZ', {
+        style: 'currency',
+        currency: 'TZS',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(0);
+    }
 
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('sw-TZ', {
       style: 'currency',
       currency: targetCurrencyCode,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(numericAmount);
   },
 

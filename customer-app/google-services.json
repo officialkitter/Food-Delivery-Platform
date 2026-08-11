@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "139345800360",
+    "project_id": "buza-app-v1",
+    "storage_bucket": "buza-app-v1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139345800360:android:4e9e47e38d7a0aea61a69d",
+        "android_client_info": {
+          "package_name": "com.officialkitter.buzaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1Et6eEZ-5mc56aWgmfQamP6CmX_XaSSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

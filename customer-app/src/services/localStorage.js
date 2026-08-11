@@ -6,6 +6,64 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const inMemoryStorage = new Map();
+
+const isAsyncStorageUnavailable = (exception) => {
+  const message = String(exception?.message || '').toLowerCase();
+  return message.includes('native module is null') || message.includes('cannot access legacy storage');
+};
+
+const safeSetItem = async (storageKey, stringifiedValue) => {
+  try {
+    await AsyncStorage.setItem(storageKey, stringifiedValue);
+    return true;
+  } catch (exception) {
+    if (isAsyncStorageUnavailable(exception)) {
+      inMemoryStorage.set(storageKey, stringifiedValue);
+      return true;
+    }
+    throw exception;
+  }
+};
+
+const safeGetItem = async (storageKey) => {
+  try {
+    const value = await AsyncStorage.getItem(storageKey);
+    return value;
+  } catch (exception) {
+    if (isAsyncStorageUnavailable(exception)) {
+      return inMemoryStorage.has(storageKey) ? inMemoryStorage.get(storageKey) : null;
+    }
+    throw exception;
+  }
+};
+
+const safeRemoveItem = async (storageKey) => {
+  try {
+    await AsyncStorage.removeItem(storageKey);
+    return true;
+  } catch (exception) {
+    if (isAsyncStorageUnavailable(exception)) {
+      inMemoryStorage.delete(storageKey);
+      return true;
+    }
+    throw exception;
+  }
+};
+
+const safeMultiRemove = async (storageKeysArray) => {
+  try {
+    await AsyncStorage.multiRemove(storageKeysArray);
+    return true;
+  } catch (exception) {
+    if (isAsyncStorageUnavailable(exception)) {
+      storageKeysArray.forEach((key) => inMemoryStorage.delete(key));
+      return true;
+    }
+    throw exception;
+  }
+};
+
 export const localStorage = {
   /**
    * Save a JSON object or primitive string to local disk storage
@@ -13,7 +71,7 @@ export const localStorage = {
   async setItem(storageKey, targetData) {
     try {
       const stringifiedValue = typeof targetData === 'string' ? targetData : JSON.stringify(targetData);
-      await AsyncStorage.setItem(storageKey, stringifiedValue);
+      await safeSetItem(storageKey, stringifiedValue);
       return true;
     } catch (exception) {
       console.error(`[Buza LocalStorage Exception]: Failed to cache key [${storageKey}]`, exception);
@@ -26,7 +84,7 @@ export const localStorage = {
    */
   async getItem(storageKey) {
     try {
-      const cachedValue = await AsyncStorage.getItem(storageKey);
+      const cachedValue = await safeGetItem(storageKey);
       if (!cachedValue) return null;
       try {
         return JSON.parse(cachedValue);
@@ -56,7 +114,7 @@ export const localStorage = {
    */
   async deleteItem(storageKey) {
     try {
-      await AsyncStorage.removeItem(storageKey);
+      await safeRemoveItem(storageKey);
       return true;
     } catch (exception) {
       console.error(`[Buza LocalStorage Exception]: Failed to delete key [${storageKey}]`, exception);
@@ -69,7 +127,7 @@ export const localStorage = {
    */
   async multiDelete(storageKeysArray = []) {
     try {
-      await AsyncStorage.multiRemove(storageKeysArray);
+      await safeMultiRemove(storageKeysArray);
       return true;
     } catch (exception) {
       console.error(`[Buza LocalStorage Exception]: Failed to delete keys [${storageKeysArray.join(', ')}]`, exception);

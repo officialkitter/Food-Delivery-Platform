@@ -1,6 +1,11 @@
-// src/components/CustomIcon.js
+/**
+ * Buza Food Delivery Mobile Application
+ * Core Vector Icon Mapping Layer - High Density Matrix Edition
+ * File: src/components/CustomIcon.js
+ */
+
 import React from 'react';
-import { Image } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import * as Icons from 'lucide-react-native';
 import { Images } from '../../constants/theme';
 
@@ -11,126 +16,52 @@ const BRAND_ICON_SOURCES = {
   fallback: require('../../assets/images/logo.png'),
 };
 
-const getBrandAssetSource = (variant, name) => {
-  const normalizedVariant = String(variant || '').toLowerCase();
-  const normalizedName = String(name || '').toLowerCase();
-
-  if (normalizedName === 'buza-branding' || normalizedName === 'buza-logo' || normalizedName === 'logo') {
-    return BRAND_ICON_SOURCES.icon;
-  }
-
-  if (normalizedName === 'logo-dark') {
-    return BRAND_ICON_SOURCES.dark;
-  }
-
-  if (normalizedVariant === 'dark') {
-    return BRAND_ICON_SOURCES.dark;
-  }
-
-  if (normalizedVariant === 'light' || normalizedVariant === 'icon') {
-    return BRAND_ICON_SOURCES.light;
-  }
-
-  return BRAND_ICON_SOURCES.fallback;
+const SOCIAL_ICON_SOURCES = {
+  google: require('../../assets/images/google-logo.png'),
+  apple: require('../../assets/images/apple-logo.png'),
 };
-
-// Safe scaling configuration to prevent architectural runtime compilation failures
-const getBrandInsetScale = (variant) => {
-  return variant === 'icon' ? 1.0 : 0.8;
-};
-
-const renderBrandIcon = (source, size, style, brandVariant) => (
-  <Image
-    source={source}
-    style={[
-      {
-        width: size * getBrandInsetScale(brandVariant),
-        height: size * getBrandInsetScale(brandVariant),
-        resizeMode: 'contain',
-        borderRadius: size * 0.16,
-        tintColor: undefined, // Preserves your actual logo colors without forcing overrides
-      },
-      style,
-    ]}
-  />
-);
 
 export const CustomIcon = ({ name, size = 24, color = '#111210', style, useBrandAsset = false, brandVariant = 'icon' }) => {
-  // Automatically force Image rendering if the splash screen calls the core branding asset
-  if (useBrandAsset || name === 'buza-branding' || name === 'buza-logo' || name === 'logo' || name === 'brand') {
-    const brandSource = getBrandAssetSource(brandVariant, name);
-    return renderBrandIcon(brandSource, size, style, brandVariant);
+  // --- 1. Brand Asset Interceptor Node ---
+  const normName = String(name || '').toLowerCase();
+  if (useBrandAsset || ['buza-branding', 'buza-logo', 'logo', 'brand', 'logo-dark'].includes(normName)) {
+    const src = normName === 'logo-dark' || String(brandVariant).toLowerCase() === 'dark' ? BRAND_ICON_SOURCES.dark : (brandVariant === 'icon' ? BRAND_ICON_SOURCES.icon : BRAND_ICON_SOURCES.light);
+    return <Image source={src || BRAND_ICON_SOURCES.fallback} style={[{ width: size * (brandVariant === 'icon' ? 1.0 : 0.8), height: size * (brandVariant === 'icon' ? 1.0 : 0.8), resizeMode: 'contain', borderRadius: size * 0.16 }, style]} />;
   }
 
-  switch (name) {
-    // Horizon Dock Cutout Mappings
-    case 'home':
-      return <Icons.Home size={size} color={color} strokeWidth={2} style={style} />;
-    case 'fudcamp':
-      return <Icons.Flame size={size} color={color} strokeWidth={2} style={style} />;
-    case 'cart':
-      return <Icons.ShoppingBag size={size} color={color} strokeWidth={2} style={style} />;
-    case 'delivery-scooter':
-      return <Icons.Truck size={size} color={color} strokeWidth={2} style={style} />;
-    case 'service':
-      return <Icons.Grid2X2 size={size} color={color} strokeWidth={2} style={style} />;
-    case 'heart':
-    case 'favorite':
-      return <Icons.Heart size={size} color={color} strokeWidth={2} style={style} />;
-    case 'favorite-filled':
-      return <Icons.Heart size={size} color={color} strokeWidth={2} fill={color} style={style} />;
-    case 'map-pin':
-    case 'nearby':
-      return <Icons.MapPin size={size} color={color} strokeWidth={2} style={style} />;
-    case 'user-profile':
-    case 'profile':
-      return <Icons.User size={size} color={color} strokeWidth={2} style={style} />;
-    case 'user':
-      return <Icons.UserRound size={size} color={color} strokeWidth={2} style={style} />;
-    case 'mail':
-      return <Icons.Mail size={size} color={color} strokeWidth={2} style={style} />;
-    case 'calendar':
-      return <Icons.CalendarDays size={size} color={color} strokeWidth={2} style={style} />;
-    case 'arrow-left':
-      return <Icons.ArrowLeft size={size} color={color} strokeWidth={2} style={style} />;
-    case 'lock':
-      return <Icons.Lock size={size} color={color} strokeWidth={2} style={style} />;
-    case 'eye':
-      return <Icons.Eye size={size} color={color} strokeWidth={2} style={style} />;
-    case 'eye-off':
-      return <Icons.EyeOff size={size} color={color} strokeWidth={2} style={style} />;
-    case 'fingerprint':
-      return <Icons.Fingerprint size={size} color={color} strokeWidth={2} style={style} />;
-    case 'shield-check':
-      return <Icons.ShieldCheck size={size} color={color} strokeWidth={2} style={style} />;
-    case 'check-circle':
-      return <Icons.CircleCheckBig size={size} color={color} strokeWidth={2} style={style} />;
+  // --- 2. Social / Filled Icon Special Variants ---
+  if (normName === 'google' || normName === 'google-logo') return <Image source={SOCIAL_ICON_SOURCES.google} style={[{ width: size, height: size, resizeMode: 'contain' }, style]} />;
+  if (normName === 'apple' || normName === 'apple-logo') return <Image source={SOCIAL_ICON_SOURCES.apple} style={[{ width: size, height: size, resizeMode: 'contain' }, style]} />;
+  if (normName === 'favorite-filled') return <Icons.Heart size={size} color={color} strokeWidth={2} fill={color} style={style} />;
 
-    // Discovery UI Mappings
-    case 'search':
-      return <Icons.Search size={size} color={color} strokeWidth={2} style={style} />;
-    case 'list':
-      return <Icons.List size={size} color={color} strokeWidth={2} style={style} />;
-    case 'grid':
-      return <Icons.Grid size={size} color={color} strokeWidth={2} style={style} />;
-    case 'menu':
-      return <Icons.Menu size={size} color={color} strokeWidth={2} style={style} />;
-    case 'star':
-      return <Icons.Star size={size} color={color} strokeWidth={2} fill={color === '#C5A059' ? '#C5A059' : 'transparent'} style={style} />;
-    case 'plus':
-      // Clean integer stroke thickness to avoid zero fraction configurations
-      return <Icons.Plus size={size} color={color} strokeWidth={3} style={style} />;
-    
-    // Cognitive Bot Layer Mappings
-    case 'bot':
-      return <Icons.Cpu size={size} color={color} strokeWidth={2} style={style} />;
-    case 'message':
-      return <Icons.MessageSquare size={size} color={color} strokeWidth={2} style={style} />;
-    case 'clock':
-      return <Icons.Clock size={size} color={color} strokeWidth={2} style={style} />;
+  // 3D High-Gloss Emerald Checkmark Architecture
+  if (normName === 'checkmark' || normName === 'check') return (
+    <View style={[styles.icon3DContainer, style]}><Icons.Check size={size} color="#14532D" strokeWidth={4} style={styles.shadowLayer3D} /><Icons.Check size={size} color="#22C55E" strokeWidth={3.5} /></View>
+  );
 
-    default:
-      // Robust structural fallback layout prevents compiling failures
-      return <Icons.HelpCircle size={size} color={color} strokeWidth={2} style={style} />;
-  }
+  // Star handling with conditional highlight fills for product/vendor badges
+  if (normName === 'star') return <Icons.Star size={size} color={color} strokeWidth={2} fill={color !== 'transparent' ? color : 'transparent'} style={style} />;
+
+  // --- 3. Complete High-Density Vector Direct Lookup Map ---
+  const IconLookup = {
+    'home': Icons.Home, 'fudcamp': Icons.Flame, 'cart': Icons.ShoppingBag,
+    'delivery-scooter': Icons.Truck, 'service': Icons.Grid2X2, 'heart': Icons.Heart,
+    'favorite': Icons.Heart, 'map-pin': Icons.MapPin, 'nearby': Icons.MapPin,
+    'user-profile': Icons.User, 'profile': Icons.User, 'user': Icons.UserRound,
+    'mail': Icons.Mail, 'calendar': Icons.CalendarDays, 'arrow-left': Icons.ArrowLeft,
+    'lock': Icons.Lock, 'eye': Icons.Eye, 'eye-off': Icons.EyeOff,
+    'fingerprint': Icons.Fingerprint, 'shield-check': Icons.ShieldCheck, 'check-circle': Icons.CircleCheckBig,
+    'search': Icons.Search, 'list': Icons.List, 'grid': Icons.Grid,
+    'menu': Icons.Menu, 'plus': Icons.Plus, 'bot': Icons.Cpu,
+    'message': Icons.MessageSquare, 'clock': Icons.Clock, 'bell': Icons.Bell,
+    'more-vertical': Icons.MoreVertical
+  };
+
+  const VectorComponent = IconLookup[normName] || Icons.HelpCircle;
+  return <VectorComponent size={size} color={color} strokeWidth={2} style={style} />;
 };
+
+const styles = StyleSheet.create({
+  icon3DContainer: { position: 'relative', justifyContent: 'center', alignItems: 'center' },
+  shadowLayer3D: { position: 'absolute', top: 2.5, left: 1, opacity: 0.85 },
+});

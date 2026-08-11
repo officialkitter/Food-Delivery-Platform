@@ -11,13 +11,24 @@ import { useTheme } from '../context/ThemeContext';
 import { CustomIcon } from '../components/common/CustomIcon';
 import { GlobalModalSheet } from './GlobalModalSheet';
 
-const AppShellInner = ({ children, showBottomTabBar = false }) => {
+const SHELL_SALMON = '#FF7F50';
+const SHELL_DARK_TURQUOISE = '#1E6B7B';
+
+const AppShellInner = ({ children, showBottomTabBar = false, activeTab: controlledActiveTab, onTabPress }) => {
   const insets = useSafeAreaInsets();
   const { isDarkMode, colors } = useTheme();
-  const [activeTab, setActiveTab] = useState('home');
+  const [uncontrolledActiveTab, setUncontrolledActiveTab] = useState('home');
+  const activeTab = controlledActiveTab || uncontrolledActiveTab;
+
+  const activeAccentColor = SHELL_DARK_TURQUOISE;
+  const oppositeAccentColor = SHELL_SALMON;
 
   const handleTabPress = (targetRoute) => {
-    setActiveTab(targetRoute);
+    if (onTabPress) {
+      onTabPress(targetRoute);
+      return;
+    }
+    setUncontrolledActiveTab(targetRoute);
   };
 
   // Ultra-minimized responsive bottom inset calculation
@@ -40,46 +51,92 @@ const AppShellInner = ({ children, showBottomTabBar = false }) => {
       </View>
 
       {showBottomTabBar && (
-        <View style={[styles.horizonDockWrapper, { bottom: Math.max(insets.bottom, 6), backgroundColor: colors.surface, borderColor: colors.accent }]}> 
+        <View style={[styles.horizonDockWrapper, { bottom: Math.max(insets.bottom, 6), backgroundColor: colors.surface, borderColor: oppositeAccentColor }]}> 
           <View style={styles.tabCluster}>
-            <TouchableOpacity style={styles.dockCell} activeOpacity={0.7} onPress={() => handleTabPress('home')}>
-              <CustomIcon name="home" size={18} color={activeTab === 'home' ? colors.primary : colors.accent} />
-              {activeTab === 'home' && <View style={[styles.activeIndicatorLine, { backgroundColor: colors.primary }]} />}
+            <TouchableOpacity
+              style={[
+                styles.dockCell,
+                { backgroundColor: activeTab === 'home' ? 'rgba(5, 42, 48, 0.14)' : 'rgba(255, 127, 80, 0.12)' },
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress('home')}
+            >
+              <CustomIcon name="home" size={18} color={activeTab === 'home' ? activeAccentColor : oppositeAccentColor} />
+              {activeTab === 'home' && <View style={[styles.activeIndicatorLine, { backgroundColor: activeAccentColor }]} />}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.dockCell} activeOpacity={0.7} onPress={() => handleTabPress('fudcamp')}>
-              <CustomIcon name="fudcamp" size={18} color={activeTab === 'fudcamp' ? colors.primary : colors.accent} />
-              {activeTab === 'fudcamp' && <View style={[styles.activeIndicatorLine, { backgroundColor: colors.secondary }]} />}
+            <TouchableOpacity
+              style={[
+                styles.dockCell,
+                { backgroundColor: activeTab === 'fudcamp' ? 'rgba(5, 42, 48, 0.14)' : 'rgba(255, 127, 80, 0.12)' },
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress('fudcamp')}
+            >
+              <CustomIcon name="fudcamp" size={18} color={activeTab === 'fudcamp' ? activeAccentColor : oppositeAccentColor} />
+              {activeTab === 'fudcamp' && <View style={[styles.activeIndicatorLine, { backgroundColor: activeAccentColor }]} />}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.dockCell} activeOpacity={0.7} onPress={() => handleTabPress('service')}>
-              <CustomIcon name="service" size={18} color={activeTab === 'service' ? colors.primary : colors.accent} />
-              {activeTab === 'service' && <View style={[styles.activeIndicatorLine, { backgroundColor: colors.secondary }]} />}
+            <TouchableOpacity
+              style={[
+                styles.dockCell,
+                { backgroundColor: activeTab === 'service' ? 'rgba(5, 42, 48, 0.14)' : 'rgba(255, 127, 80, 0.12)' },
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress('service')}
+            >
+              <CustomIcon name="service" size={18} color={activeTab === 'service' ? activeAccentColor : oppositeAccentColor} />
+              {activeTab === 'service' && <View style={[styles.activeIndicatorLine, { backgroundColor: activeAccentColor }]} />}
             </TouchableOpacity>
           </View>
 
           <View style={styles.centerHorizonAnchor}>
-            <View style={[styles.outerCutoutRing, { backgroundColor: colors.surface, borderColor: colors.accent }]}> 
-              <TouchableOpacity style={[styles.centralActionSphere, { backgroundColor: colors.accent }]} activeOpacity={0.85} onPress={() => handleTabPress('orders')}>
+            <View style={[styles.outerCutoutRing, { backgroundColor: colors.surface, borderColor: oppositeAccentColor }]}> 
+              <TouchableOpacity
+                style={[styles.centralActionSphere, { backgroundColor: activeTab === 'orders' ? activeAccentColor : oppositeAccentColor }]}
+                activeOpacity={0.85}
+                onPress={() => handleTabPress('orders')}
+              >
                 <CustomIcon name="delivery-scooter" size={20} color={colors.surface} />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.tabCluster}>
-            <TouchableOpacity style={styles.dockCell} activeOpacity={0.7} onPress={() => handleTabPress('favorite')}>
-              <CustomIcon name="heart" size={18} color={activeTab === 'favorite' ? colors.primary : colors.accent} />
-              {activeTab === 'favorite' && <View style={[styles.activeIndicatorLine, { backgroundColor: colors.secondary }]} />}
+            <TouchableOpacity
+              style={[
+                styles.dockCell,
+                { backgroundColor: activeTab === 'favorite' ? 'rgba(5, 42, 48, 0.14)' : 'rgba(255, 127, 80, 0.12)' },
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress('favorite')}
+            >
+              <CustomIcon name="heart" size={18} color={activeTab === 'favorite' ? activeAccentColor : oppositeAccentColor} />
+              {activeTab === 'favorite' && <View style={[styles.activeIndicatorLine, { backgroundColor: activeAccentColor }]} />}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.dockCell} activeOpacity={0.7} onPress={() => handleTabPress('nearby')}>
-              <CustomIcon name="map-pin" size={18} color={activeTab === 'nearby' ? colors.primary : colors.accent} />
-              {activeTab === 'nearby' && <View style={[styles.activeIndicatorLine, { backgroundColor: colors.secondary }]} />}
+            <TouchableOpacity
+              style={[
+                styles.dockCell,
+                { backgroundColor: activeTab === 'nearby' ? 'rgba(5, 42, 48, 0.14)' : 'rgba(255, 127, 80, 0.12)' },
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress('nearby')}
+            >
+              <CustomIcon name="map-pin" size={18} color={activeTab === 'nearby' ? activeAccentColor : oppositeAccentColor} />
+              {activeTab === 'nearby' && <View style={[styles.activeIndicatorLine, { backgroundColor: activeAccentColor }]} />}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.dockCell} activeOpacity={0.7} onPress={() => handleTabPress('account')}>
-              <CustomIcon name="user-profile" size={18} color={activeTab === 'account' ? colors.primary : colors.accent} />
-              {activeTab === 'account' && <View style={[styles.activeIndicatorLine, { backgroundColor: colors.primary }]} />}
+            <TouchableOpacity
+              style={[
+                styles.dockCell,
+                { backgroundColor: activeTab === 'account' ? 'rgba(5, 42, 48, 0.14)' : 'rgba(255, 127, 80, 0.12)' },
+              ]}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress('account')}
+            >
+              <CustomIcon name="user-profile" size={18} color={activeTab === 'account' ? activeAccentColor : oppositeAccentColor} />
+              {activeTab === 'account' && <View style={[styles.activeIndicatorLine, { backgroundColor: activeAccentColor }]} />}
             </TouchableOpacity>
           </View>
         </View>
@@ -90,10 +147,16 @@ const AppShellInner = ({ children, showBottomTabBar = false }) => {
   );
 };
 
-export const AppShell = ({ children, showBottomTabBar = false }) => {
+export const AppShell = ({ children, showBottomTabBar = false, activeTab, onTabPress }) => {
   return (
     <SafeAreaProvider>
-      <AppShellInner showBottomTabBar={showBottomTabBar}>{children}</AppShellInner>
+      <AppShellInner
+        showBottomTabBar={showBottomTabBar}
+        activeTab={activeTab}
+        onTabPress={onTabPress}
+      >
+        {children}
+      </AppShellInner>
     </SafeAreaProvider>
   );
 };

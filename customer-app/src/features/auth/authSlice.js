@@ -5,8 +5,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StorageKeys } from '../../constants/config';
+import { localStorage } from '../../services/localStorage';
 
 export const useAuthSlice = () => {
   const [user, setUser] = useState(null);
@@ -18,12 +18,12 @@ export const useAuthSlice = () => {
   const bootstrapAsync = useCallback(async () => {
     setIsLoading(true);
     try {
-      const storedToken = await AsyncStorage.getItem(StorageKeys.USER_TOKEN);
-      const storedProfile = await AsyncStorage.getItem(StorageKeys.USER_PROFILE);
+      const storedToken = await localStorage.getItem(StorageKeys.USER_TOKEN);
+      const storedProfile = await localStorage.getItem(StorageKeys.USER_PROFILE);
 
       if (storedToken && storedProfile) {
         setToken(storedToken);
-        setUser(JSON.parse(storedProfile));
+        setUser(typeof storedProfile === 'string' ? JSON.parse(storedProfile) : storedProfile);
       }
     } catch (err) {
       if (err) {
@@ -63,8 +63,8 @@ export const useAuthSlice = () => {
         profile: { id: 'usr_812', name: 'Premium Client', phone: phoneNumber, tier: 'VIP' }
       };
 
-      await AsyncStorage.setItem(StorageKeys.USER_TOKEN, mockPayload.token);
-      await AsyncStorage.setItem(StorageKeys.USER_PROFILE, JSON.stringify(mockPayload.profile));
+      await localStorage.setItem(StorageKeys.USER_TOKEN, mockPayload.token);
+      await localStorage.setItem(StorageKeys.USER_PROFILE, mockPayload.profile);
 
       setToken(mockPayload.token);
       setUser(mockPayload.profile);
@@ -81,7 +81,7 @@ export const useAuthSlice = () => {
   const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      await AsyncStorage.multiRemove([StorageKeys.USER_TOKEN, StorageKeys.USER_PROFILE]);
+      await localStorage.multiDelete([StorageKeys.USER_TOKEN, StorageKeys.USER_PROFILE]);
       setToken(null);
       setUser(null);
     } catch (err) {

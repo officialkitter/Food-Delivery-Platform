@@ -5,13 +5,15 @@
  */
 
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
+import * as Location from 'expo-location';
+import { locationService } from '../services/locationService';
 
 const LocationContext = createContext(null);
 
 export const LocationProvider = ({ children }) => {
   const [currentAddress, setCurrentAddress] = useState({
-    label: 'Home Dashboard',
-    street: '34 Park Avenue High-Rise Complex',
+    label: 'Current Location',
+    street: 'Unknown street',
     city: 'Dodoma',
     coordinates: { latitude: -6.1751, longitude: 35.7419 }
   });
@@ -23,18 +25,34 @@ export const LocationProvider = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      // Future Implementation Point: 
-      // const geoPos = await Geolocation.getCurrentPosition();
-      // const addressStr = await reverseGeocode(geoPos.coords);
-      
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        throw new Error('Location permission denied. Please enable location access for exact address detection.');
+      }
+
+      const position = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      const latitude = position?.coords?.latitude;
+      const longitude = position?.coords?.longitude;
+
+      if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+        throw new TypeError('Unable to read GPS coordinates from device sensors.');
+      }
+
+      const reverse = await locationService.reverseGeocodeCoordinates(latitude, longitude);
+
       setCurrentAddress({
-        label: 'Current Geolocation Sensor Pin',
-        street: '72 Premium Culinary Boulevard',
-        city: 'Dodoma',
-        coordinates: { latitude: -6.1689, longitude: 35.7482 }
+        label: reverse?.label || 'Current Location',
+        street: reverse?.street || reverse?.formattedAddress || 'Unknown street',
+        city: reverse?.city || '',
+        country: reverse?.country || '',
+        formattedAddress: reverse?.formattedAddress || '',
+        coordinates: reverse?.coordinates || { latitude, longitude },
       });
     } catch (err) {
-      setError(err?.message || 'System location hardware execution block authorization failure.');
+      setError(err?.message || 'Unable to resolve exact location using Google Maps services.');
     } finally {
       setIsLoading(false);
     }

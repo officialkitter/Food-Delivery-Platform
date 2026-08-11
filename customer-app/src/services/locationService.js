@@ -5,17 +5,25 @@
  */
 
 import { apiclient } from './apiClient';
+import { ApiEndpoints } from '../constants/apiEndpoints';
+
+const pickPayload = (response) => response?.data ?? response;
 
 export const locationService = {
   /**
    * Converts spatial latitude and longitude details into a readable physical address
    */
   async reverseGeocodeCoordinates(lat, lng) {
-    if (__DEV__) {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      return { street: '92 Culinary Estate Way', complex: 'Tower B Suite 4', city: 'Dodoma' };
-    }
-    return await apiclient.get(`/maps/reverse-geocode?latitude=${lat}&longitude=${lng}`);
+    const response = await apiclient.get(`${ApiEndpoints.maps.reverseGeocode}?latitude=${lat}&longitude=${lng}`);
+    const payload = pickPayload(response);
+    return {
+      label: payload?.label || 'Current Location',
+      street: payload?.street || '',
+      city: payload?.city || '',
+      country: payload?.country || '',
+      formattedAddress: payload?.formattedAddress || '',
+      coordinates: payload?.coordinates || { latitude: lat, longitude: lng },
+    };
   },
 
   /**
