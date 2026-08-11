@@ -4,6 +4,8 @@ const API_V1 = '/api/v1';
 
 const env = {
   PORT: process.env.PORT || 5001,
+  HOST: process.env.HOST || '0.0.0.0',
+  NODE_ENV: process.env.NODE_ENV || 'development',
   MONGODB_URI: process.env.MONGODB_URI || null,
   SUPABASE_URL: process.env.SUPABASE_URL || null,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || null,

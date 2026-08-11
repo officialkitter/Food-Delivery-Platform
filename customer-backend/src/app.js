@@ -28,8 +28,8 @@ app.use(globalErrorHandler);
 const startServer = async () => {
   await connectMongo();
 
-  app.listen(env.PORT, () => {
-    console.log(`Backend delivery server interface executing on port execution target: ${env.PORT}`);
+  app.listen(env.PORT, env.HOST, () => {
+    console.log(`Backend delivery server running on ${env.HOST}:${env.PORT} (${env.NODE_ENV})`);
   });
 };
 
