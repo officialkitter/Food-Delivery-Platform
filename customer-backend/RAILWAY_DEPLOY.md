@@ -50,6 +50,12 @@ Optional integrations (set only if you use them):
 - `FIREBASE_PROFILE_SYNC=false`
 - `FIREBASE_WEB_API_KEY`
 
+Firebase on Railway:
+
+- Prefer `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY` as Railway variables.
+- Only set `FIREBASE_SERVICE_ACCOUNT_PATH` if you are actually shipping a JSON file inside the container.
+- If your private key was pasted without PEM headers, the backend now repairs common malformed values automatically.
+
 ## 3) Health checks
 
 Railway health check path is configured as:
