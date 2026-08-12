@@ -8,7 +8,7 @@ This backend is ready to run on Railway with container-safe host/port binding.
 2. New Project -> Deploy from GitHub Repo.
 3. Select `officialkitter/Food-Delivery-Platform`.
 4. Set the **Root Directory** to `customer-backend`.
-5. Railway will detect Node and run `npm install` + `npm run start:railway`.
+5. Railway will detect Node, install dependencies, and start the service with `node server.js`.
 
 ## 2) Required environment variables
 
@@ -83,6 +83,11 @@ In your frontend environment (`customer-app`):
 Then restart Expo with cache clear.
 
 ## 6) Common failure fixes
+
+- `npm warn config production Use --omit=dev instead.`:
+  - This is an npm warning, not an application failure.
+  - It appears when Railway starts the app through `npm` with legacy production config.
+  - This service is configured to start with `node server.js`, which avoids the warning at runtime.
 
 - Build fails on Node version:
   - This project sets `engines.node >=22`. Ensure Railway uses Node 22+.
